@@ -1,0 +1,1011 @@
+import { useState, useRef, useCallback } from “react”;
+
+const TEMPLATES = [
+{
+id: “landing”,
+name: “Landing Page”,
+icon: “🚀”,
+desc: “Bold hero + CTA”,
+accent: “#f97316”,
+generate: (d) => `<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${d.title}</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:${d.bg};color:${d.text};min-height:100vh}
+  .hero{padding:80px 24px 60px;text-align:center;background:linear-gradient(135deg,${d.primary}22,${d.bg})}
+  .badge{display:inline-block;background:${d.primary}22;color:${d.primary};border:1px solid ${d.primary}44;border-radius:20px;padding:6px 16px;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:20px}
+  h1{font-size:clamp(32px,8vw,56px);font-weight:800;line-height:1.1;margin-bottom:20px}
+  .sub{font-size:18px;opacity:0.7;max-width:480px;margin:0 auto 36px;line-height:1.6}
+  .btn{display:inline-block;background:${d.primary};color:#fff;padding:16px 36px;border-radius:12px;font-weight:700;font-size:16px;text-decoration:none;transition:transform 0.2s,opacity 0.2s}
+  .btn:hover{transform:translateY(-2px);opacity:0.9}
+  .features{padding:60px 24px;max-width:600px;margin:0 auto}
+  .feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;margin-top:32px}
+  .feat{background:${d.primary}11;border:1px solid ${d.primary}22;border-radius:16px;padding:24px 16px;text-align:center}
+  .feat-icon{font-size:32px;margin-bottom:12px}
+  .feat-title{font-weight:700;margin-bottom:6px}
+  .feat-desc{font-size:13px;opacity:0.6}
+  .cta-section{background:${d.primary};color:#fff;padding:60px 24px;text-align:center}
+  .cta-section h2{font-size:28px;font-weight:800;margin-bottom:16px}
+  .cta-section p{opacity:0.85;margin-bottom:28px}
+  .btn-white{background:#fff;color:${d.primary};padding:14px 32px;border-radius:12px;font-weight:700;font-size:15px;text-decoration:none;display:inline-block}
+  footer{padding:24px;text-align:center;opacity:0.4;font-size:13px}
+</style>
+</head>
+<body>
+<section class="hero">
+  <div class="badge">${d.badge || "Now Available"}</div>
+  <h1>${d.title}</h1>
+  <p class="sub">${d.subtitle}</p>
+  <a href="${d.ctaLink || "#"}" class="btn">${d.cta || "Get Started"}</a>
+</section>
+<section class="features">
+  <div class="feat-grid">
+    <div class="feat"><div class="feat-icon">${d.f1icon||"⚡"}</div><div class="feat-title">${d.f1||"Fast"}</div><div class="feat-desc">${d.f1d||"Lightning quick"}</div></div>
+    <div class="feat"><div class="feat-icon">${d.f2icon||"🎯"}</div><div class="feat-title">${d.f2||"Focused"}</div><div class="feat-desc">${d.f2d||"Purpose built"}</div></div>
+    <div class="feat"><div class="feat-icon">${d.f3icon||"💎"}</div><div class="feat-title">${d.f3||"Quality"}</div><div class="feat-desc">${d.f3d||"Premium grade"}</div></div>
+  </div>
+</section>
+<section class="cta-section">
+  <h2>${d.cta2title||"Ready to start?"}</h2>
+  <p>${d.cta2sub||"Join thousands of satisfied customers today."}</p>
+  <a href="${d.ctaLink||"#"}" class="btn-white">${d.cta||"Get Started"}</a>
+</section>
+<footer>© ${new Date().getFullYear()} ${d.title}. All rights reserved.</footer>
+</body></html>`,
+  },
+  {
+    id: "portfolio",
+    name: "Portfolio",
+    icon: "🎨",
+    desc: "Showcase your work",
+    accent: "#8b5cf6",
+    generate: (d) => `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${d.title}</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Georgia',serif;background:${d.bg};color:${d.text};min-height:100vh}
+  nav{padding:20px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid ${d.primary}22}
+  .logo{font-weight:700;font-size:18px;color:${d.primary}}
+  .nav-links a{color:${d.text};text-decoration:none;margin-left:20px;font-size:14px;opacity:0.7}
+  .hero{padding:80px 24px 60px;max-width:640px}
+  .tag{color:${d.primary};font-size:14px;font-weight:600;margin-bottom:16px}
+  h1{font-size:clamp(36px,7vw,60px);font-weight:700;line-height:1.1;margin-bottom:20px}
+  .bio{font-size:17px;opacity:0.7;line-height:1.7;margin-bottom:32px}
+  .btn{display:inline-block;border:2px solid ${d.primary};color:${d.primary};padding:12px 28px;border-radius:8px;font-weight:600;text-decoration:none;margin-right:12px;font-family:sans-serif;font-size:14px}
+  .btn.filled{background:${d.primary};color:#fff}
+  .works{padding:60px 24px;max-width:640px;margin:0 auto}
+  .works h2{font-size:24px;font-weight:700;margin-bottom:32px;font-family:sans-serif}
+  .work-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px}
+  .work-card{background:${d.primary}11;border:1px solid ${d.primary}22;border-radius:12px;overflow:hidden}
+  .work-thumb{height:100px;background:linear-gradient(135deg,${d.primary}44,${d.primary}88);display:flex;align-items:center;justify-content:center;font-size:32px}
+  .work-info{padding:14px}
+  .work-title{font-weight:700;font-size:14px;margin-bottom:4px;font-family:sans-serif}
+  .work-tag{font-size:11px;color:${d.primary};font-family:sans-serif}
+  .contact{padding:60px 24px;text-align:center;background:${d.primary}08}
+  .contact h2{font-size:24px;font-weight:700;margin-bottom:12px;font-family:sans-serif}
+  .contact p{opacity:0.6;margin-bottom:28px;font-family:sans-serif}
+  .email{color:${d.primary};font-size:18px;font-weight:600;text-decoration:none;font-family:sans-serif}
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">${d.name||d.title}</div>
+  <div class="nav-links"><a href="#">Work</a><a href="#">About</a><a href="#">Contact</a></div>
+</nav>
+<section class="hero">
+  <div class="tag">${d.role||"Designer & Developer"}</div>
+  <h1>${d.headline||"I craft digital experiences"}</h1>
+  <p class="bio">${d.subtitle}</p>
+  <a href="#" class="btn filled">View Work</a>
+  <a href="#" class="btn">Contact Me</a>
+</section>
+<section class="works">
+  <h2>Selected Work</h2>
+  <div class="work-grid">
+    <div class="work-card"><div class="work-thumb">${d.p1icon||"🌐"}</div><div class="work-info"><div class="work-title">${d.p1||"Project One"}</div><div class="work-tag">${d.p1t||"Web Design"}</div></div></div>
+    <div class="work-card"><div class="work-thumb">${d.p2icon||"📱"}</div><div class="work-info"><div class="work-title">${d.p2||"Project Two"}</div><div class="work-tag">${d.p2t||"App Design"}</div></div></div>
+    <div class="work-card"><div class="work-thumb">${d.p3icon||"🎯"}</div><div class="work-info"><div class="work-title">${d.p3||"Project Three"}</div><div class="work-tag">${d.p3t||"Branding"}</div></div></div>
+  </div>
+</section>
+<section class="contact">
+  <h2>Get In Touch</h2>
+  <p>Have a project in mind? Let's talk.</p>
+  <a href="mailto:${d.email||"hello@example.com"}" class="email">${d.email||"hello@example.com"}</a>
+</section>
+</body></html>`,
+  },
+  {
+    id: "business",
+    name: "Business Card",
+    icon: "💼",
+    desc: "Clean biz presence",
+    accent: "#0ea5e9",
+    generate: (d) => `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${d.title}</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:${d.bg};color:${d.text};min-height:100vh;display:flex;flex-direction:column}
+  .header{background:${d.primary};padding:48px 24px 40px;text-align:center;color:#fff}
+  .avatar{width:80px;height:80px;background:#ffffff33;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:36px;border:3px solid #ffffff55}
+  .biz-name{font-size:26px;font-weight:800;margin-bottom:6px}
+  .biz-tag{opacity:0.8;font-size:14px}
+  .card{background:${d.bg};border-radius:20px 20px 0 0;margin-top:-20px;padding:32px 24px;flex:1}
+  .about{font-size:15px;line-height:1.7;opacity:0.7;margin-bottom:32px;text-align:center}
+  .divider{height:1px;background:${d.primary}22;margin:0 0 28px}
+  .info-row{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding:14px;background:${d.primary}08;border-radius:12px;border:1px solid ${d.primary}15}
+  .info-icon{font-size:20px;width:36px;text-align:center}
+  .info-label{font-size:11px;text-transform:uppercase;letter-spacing:0.5px;opacity:0.5;margin-bottom:2px}
+  .info-val{font-weight:600;font-size:15px}
+  .services{margin-top:28px}
+  .services h3{font-size:13px;text-transform:uppercase;letter-spacing:1px;opacity:0.5;margin-bottom:16px}
+  .tags{display:flex;flex-wrap:wrap;gap:8px}
+  .tag{background:${d.primary}15;color:${d.primary};border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600}
+  .cta{margin-top:32px;background:${d.primary};color:#fff;padding:16px;border-radius:14px;text-align:center;text-decoration:none;display:block;font-weight:700;font-size:16px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="avatar">${d.avatar||"👤"}</div>
+  <div class="biz-name">${d.title}</div>
+  <div class="biz-tag">${d.role||"Professional Services"}</div>
+</div>
+<div class="card">
+  <p class="about">${d.subtitle}</p>
+  <div class="divider"></div>
+  <div class="info-row"><div class="info-icon">📞</div><div><div class="info-label">Phone</div><div class="info-val">${d.phone||"+1 234 567 8900"}</div></div></div>
+  <div class="info-row"><div class="info-icon">✉️</div><div><div class="info-label">Email</div><div class="info-val">${d.email||"hello@business.com"}</div></div></div>
+  <div class="info-row"><div class="info-icon">📍</div><div><div class="info-label">Location</div><div class="info-val">${d.location||"New York, USA"}</div></div></div>
+  <div class="services">
+    <h3>Services</h3>
+    <div class="tags">
+      <span class="tag">${d.s1||"Consulting"}</span>
+      <span class="tag">${d.s2||"Strategy"}</span>
+      <span class="tag">${d.s3||"Design"}</span>
+    </div>
+  </div>
+  <a href="mailto:${d.email||"hello@business.com"}" class="cta">Get In Touch</a>
+</div>
+</body></html>`,
+  },
+  {
+    id: "restaurant",
+    name: "Restaurant",
+    icon: "🍽️",
+    desc: "Menu & hours",
+    accent: "#dc2626",
+    generate: (d) => `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${d.title}</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Georgia',serif;background:${d.bg};color:${d.text};min-height:100vh}
+  .hero{background:linear-gradient(180deg,${d.primary}cc,${d.primary}ff);padding:60px 24px;text-align:center;color:#fff;position:relative}
+  .emoji-bg{font-size:60px;margin-bottom:16px;display:block}
+  h1{font-size:36px;font-weight:700;margin-bottom:8px}
+  .tagline{font-size:16px;opacity:0.85;margin-bottom:24px}
+  .hours-badge{background:#ffffff22;border:1px solid #ffffff44;border-radius:20px;padding:8px 20px;display:inline-block;font-size:14px;font-family:sans-serif}
+  .section{padding:40px 24px}
+  .section h2{font-size:20px;font-weight:700;font-family:sans-serif;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .section h2 span{color:${d.primary}}
+  .section .desc{font-size:13px;opacity:0.55;font-family:sans-serif;margin-bottom:24px}
+  .menu-item{display:flex;justify-content:space-between;align-items:start;padding:16px 0;border-bottom:1px solid ${d.primary}15}
+  .item-name{font-weight:700;font-size:15px;margin-bottom:4px;font-family:sans-serif}
+  .item-desc{font-size:13px;opacity:0.6;font-family:sans-serif}
+  .item-price{color:${d.primary};font-weight:700;font-size:16px;font-family:sans-serif;white-space:nowrap;margin-left:16px}
+  .info-block{background:${d.primary}08;border:1px solid ${d.primary}22;border-radius:16px;padding:20px;margin-top:12px;font-family:sans-serif}
+  .info-row{display:flex;gap:12px;margin-bottom:10px;font-size:14px}
+  .info-label{opacity:0.5;width:70px;flex-shrink:0}
+  .reserve{display:block;background:${d.primary};color:#fff;text-align:center;padding:16px;border-radius:14px;font-family:sans-serif;font-weight:700;font-size:16px;text-decoration:none;margin:24px 24px 40px}
+</style>
+</head>
+<body>
+<div class="hero">
+  <span class="emoji-bg">${d.avatar||"🍽️"}</span>
+  <h1>${d.title}</h1>
+  <p class="tagline">${d.subtitle}</p>
+  <div class="hours-badge">Open ${d.hours||"Mon–Sun · 11am–10pm"}</div>
+</div>
+<div class="section">
+  <h2>🍴 <span>Our Menu</span></h2>
+  <p class="desc">Fresh ingredients, bold flavours</p>
+  <div class="menu-item"><div><div class="item-name">${d.m1||"Signature Dish"}</div><div class="item-desc">${d.m1d||"Chef's special recipe"}</div></div><div class="item-price">${d.m1p||"$18"}</div></div>
+  <div class="menu-item"><div><div class="item-name">${d.m2||"House Favourite"}</div><div class="item-desc">${d.m2d||"A crowd pleaser"}</div></div><div class="item-price">${d.m2p||"$14"}</div></div>
+  <div class="menu-item"><div><div class="item-name">${d.m3||"Daily Special"}</div><div class="item-desc">${d.m3d||"Changes every day"}</div></div><div class="item-price">${d.m3p||"$16"}</div></div>
+</div>
+<div class="section" style="padding-top:0">
+  <h2>📍 <span>Find Us</span></h2>
+  <div class="info-block">
+    <div class="info-row"><span class="info-label">Address</span><span>${d.location||"123 Main St, City"}</span></div>
+    <div class="info-row"><span class="info-label">Phone</span><span>${d.phone||"+1 234 567 8900"}</span></div>
+    <div class="info-row"><span class="info-label">Hours</span><span>${d.hours||"Mon–Sun 11am–10pm"}</span></div>
+  </div>
+</div>
+<a href="tel:${d.phone||"+12345678900"}" class="reserve">📞 Reserve a Table</a>
+</body></html>`,
+  },
+  {
+    id: "comingsoon",
+    name: "Coming Soon",
+    icon: "⏳",
+    desc: "Teaser & launch page",
+    accent: "#10b981",
+    generate: (d) => `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${d.title}</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',sans-serif;background:${d.bg};color:${d.text};min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px}
+  .logo{font-size:48px;margin-bottom:24px;animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+  h1{font-size:clamp(28px,7vw,52px);font-weight:800;line-height:1.1;margin-bottom:16px}
+  .sub{font-size:17px;opacity:0.6;max-width:400px;line-height:1.6;margin-bottom:40px}
+  .countdown{display:flex;gap:20px;margin-bottom:40px;justify-content:center}
+  .unit{background:${d.primary}15;border:1px solid ${d.primary}33;border-radius:12px;padding:16px;min-width:68px}
+  .num{font-size:32px;font-weight:800;color:${d.primary};line-height:1}
+  .label{font-size:10px;text-transform:uppercase;letter-spacing:1px;opacity:0.5;margin-top:4px}
+  .notify{display:flex;gap:8px;max-width:360px;width:100%;margin:0 auto 32px}
+  .notify input{flex:1;padding:14px 16px;border-radius:12px;border:1px solid ${d.primary}33;background:${d.primary}08;color:${d.text};font-size:15px;outline:none}
+  .notify input::placeholder{opacity:0.4}
+  .notify input:focus{border-color:${d.primary}}
+  .btn{background:${d.primary};color:#fff;border:none;padding:14px 20px;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap}
+  .social{opacity:0.4;font-size:13px}
+  .dot{display:inline-block;width:6px;height:6px;background:${d.primary};border-radius:50%;margin:0 8px;animation:blink 1.5s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+</style>
+</head>
+<body>
+<div class="logo">${d.avatar||"🚀"}</div>
+<h1>${d.title}</h1>
+<p class="sub">${d.subtitle}</p>
+<div class="countdown">
+  <div class="unit"><div class="num" id="days">00</div><div class="label">Days</div></div>
+  <div class="unit"><div class="num" id="hrs">00</div><div class="label">Hours</div></div>
+  <div class="unit"><div class="num" id="mins">00</div><div class="label">Mins</div></div>
+  <div class="unit"><div class="num" id="secs">00</div><div class="label">Secs</div></div>
+</div>
+<div class="notify">
+  <input type="email" placeholder="Your email address">
+  <button class="btn">Notify Me</button>
+</div>
+<p class="social"><span class="dot"></span> Building something awesome</p>
+<script>
+const target=new Date('${d.launchDate||"2025-12-31"}');
+function tick(){const n=new Date,d=Math.max(0,target-n),days=Math.floor(d/864e5),hrs=Math.floor(d%864e5/36e5),mins=Math.floor(d%36e5/6e4),secs=Math.floor(d%6e4/1e3);document.getElementById('days').textContent=String(days).padStart(2,'0');document.getElementById('hrs').textContent=String(hrs).padStart(2,'0');document.getElementById('mins').textContent=String(mins).padStart(2,'0');document.getElementById('secs').textContent=String(secs).padStart(2,'0')}
+tick();setInterval(tick,1000);
+</script>
+</body></html>`,
+  },
+  {
+    id: "blog",
+    name: "Blog / Article",
+    icon: "📝",
+    desc: "Share your story",
+    accent: "#f59e0b",
+    generate: (d) => `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${d.title}</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Georgia',serif;background:${d.bg};color:${d.text};min-height:100vh}
+  header{padding:20px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid ${d.primary}}
+  .site-name{font-family:sans-serif;font-weight:800;font-size:16px}
+  .header-tag{background:${d.primary};color:#fff;padding:4px 12px;border-radius:4px;font-family:sans-serif;font-size:12px;font-weight:700}
+  .article{max-width:640px;margin:0 auto;padding:40px 24px}
+  .meta{display:flex;gap:12px;align-items:center;margin-bottom:24px;font-family:sans-serif;font-size:13px;opacity:0.5}
+  .meta-dot{width:4px;height:4px;background:currentColor;border-radius:50%}
+  h1{font-size:clamp(26px,6vw,40px);font-weight:700;line-height:1.2;margin-bottom:20px}
+  .lead{font-size:18px;line-height:1.7;opacity:0.8;border-left:3px solid ${d.primary};padding-left:16px;margin-bottom:32px;font-style:italic}
+  .body-text p{font-size:16px;line-height:1.8;margin-bottom:20px;opacity:0.8}
+  .body-text h2{font-size:20px;font-weight:700;margin:32px 0 12px;font-family:sans-serif;color:${d.primary}}
+  .tag-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:36px;padding-top:28px;border-top:1px solid ${d.primary}22}
+  .tag{background:${d.primary}15;color:${d.primary};padding:5px 12px;border-radius:4px;font-size:12px;font-family:sans-serif;font-weight:600}
+  .author-box{background:${d.primary}08;border:1px solid ${d.primary}22;border-radius:16px;padding:20px;display:flex;gap:16px;align-items:center;margin-top:32px;font-family:sans-serif}
+  .author-avatar{font-size:40px}
+  .author-name{font-weight:700;margin-bottom:4px}
+  .author-bio{font-size:13px;opacity:0.6}
+</style>
+</head>
+<body>
+<header>
+  <div class="site-name">${d.blogName||d.title}</div>
+  <div class="header-tag">${d.category||"Blog"}</div>
+</header>
+<article class="article">
+  <div class="meta">
+    <span>${d.author||"Author"}</span>
+    <span class="meta-dot"></span>
+    <span>${d.date||new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</span>
+    <span class="meta-dot"></span>
+    <span>${d.readtime||"5 min read"}</span>
+  </div>
+  <h1>${d.title}</h1>
+  <p class="lead">${d.subtitle}</p>
+  <div class="body-text">
+    <p>${d.p1||"Start writing your story here. Share your thoughts, experiences, and insights with your audience."}</p>
+    <h2>${d.h2||"The Main Point"}</h2>
+    <p>${d.p2||"Expand on your ideas here. Provide detail, context, and evidence to support your writing."}</p>
+    <p>${d.p3||"Wrap up this section with a key takeaway or transition to your next idea."}</p>
+  </div>
+  <div class="tag-row">
+    <span class="tag">${d.t1||"Writing"}</span>
+    <span class="tag">${d.t2||"Ideas"}</span>
+    <span class="tag">${d.t3||"Lifestyle"}</span>
+  </div>
+  <div class="author-box">
+    <div class="author-avatar">${d.avatar||"✍️"}</div>
+    <div><div class="author-name">${d.author||"Author Name"}</div><div class="author-bio">${d.bio||"Writer and creator sharing ideas with the world."}</div></div>
+  </div>
+</article>
+</body></html>`,
+  },
+];
+
+const FIELD_GROUPS = {
+landing: [
+{ group: “Core”, fields: [
+{ key: “title”, label: “Site Title”, ph: “My Awesome Product” },
+{ key: “subtitle”, label: “Subtitle”, ph: “The product that changes everything”, multiline: true },
+{ key: “badge”, label: “Badge Text”, ph: “Now Available” },
+{ key: “cta”, label: “Button Text”, ph: “Get Started” },
+{ key: “ctaLink”, label: “Button Link”, ph: “https://…” },
+]},
+{ group: “Features”, fields: [
+{ key: “f1icon”, label: “Feature 1 Icon”, ph: “⚡” },
+{ key: “f1”, label: “Feature 1 Name”, ph: “Fast” },
+{ key: “f1d”, label: “Feature 1 Desc”, ph: “Lightning quick” },
+{ key: “f2icon”, label: “Feature 2 Icon”, ph: “🎯” },
+{ key: “f2”, label: “Feature 2 Name”, ph: “Focused” },
+{ key: “f2d”, label: “Feature 2 Desc”, ph: “Purpose built” },
+{ key: “f3icon”, label: “Feature 3 Icon”, ph: “💎” },
+{ key: “f3”, label: “Feature 3 Name”, ph: “Quality” },
+{ key: “f3d”, label: “Feature 3 Desc”, ph: “Premium grade” },
+]},
+{ group: “Second CTA”, fields: [
+{ key: “cta2title”, label: “CTA Title”, ph: “Ready to start?” },
+{ key: “cta2sub”, label: “CTA Subtitle”, ph: “Join thousands today.” },
+]},
+],
+portfolio: [
+{ group: “About”, fields: [
+{ key: “title”, label: “Your Name / Brand”, ph: “Jane Smith” },
+{ key: “role”, label: “Your Role”, ph: “Designer & Developer” },
+{ key: “headline”, label: “Headline”, ph: “I craft digital experiences” },
+{ key: “subtitle”, label: “Bio”, ph: “A short paragraph about yourself…”, multiline: true },
+{ key: “email”, label: “Email”, ph: “hello@you.com” },
+]},
+{ group: “Projects”, fields: [
+{ key: “p1icon”, label: “Project 1 Icon”, ph: “🌐” },
+{ key: “p1”, label: “Project 1 Name”, ph: “Project One” },
+{ key: “p1t”, label: “Project 1 Tag”, ph: “Web Design” },
+{ key: “p2icon”, label: “Project 2 Icon”, ph: “📱” },
+{ key: “p2”, label: “Project 2 Name”, ph: “Project Two” },
+{ key: “p2t”, label: “Project 2 Tag”, ph: “App Design” },
+{ key: “p3icon”, label: “Project 3 Icon”, ph: “🎯” },
+{ key: “p3”, label: “Project 3 Name”, ph: “Project Three” },
+{ key: “p3t”, label: “Project 3 Tag”, ph: “Branding” },
+]},
+],
+business: [
+{ group: “Identity”, fields: [
+{ key: “title”, label: “Business Name”, ph: “Acme Co.” },
+{ key: “avatar”, label: “Logo Emoji”, ph: “💼” },
+{ key: “role”, label: “Tagline / Role”, ph: “Professional Services” },
+{ key: “subtitle”, label: “About”, ph: “Brief description of what you do…”, multiline: true },
+]},
+{ group: “Contact”, fields: [
+{ key: “phone”, label: “Phone”, ph: “+1 234 567 8900” },
+{ key: “email”, label: “Email”, ph: “hello@business.com” },
+{ key: “location”, label: “Location”, ph: “New York, USA” },
+]},
+{ group: “Services”, fields: [
+{ key: “s1”, label: “Service 1”, ph: “Consulting” },
+{ key: “s2”, label: “Service 2”, ph: “Strategy” },
+{ key: “s3”, label: “Service 3”, ph: “Design” },
+]},
+],
+restaurant: [
+{ group: “Identity”, fields: [
+{ key: “title”, label: “Restaurant Name”, ph: “The Rustic Fork” },
+{ key: “avatar”, label: “Logo Emoji”, ph: “🍽️” },
+{ key: “subtitle”, label: “Tagline”, ph: “Farm to table dining experience” },
+{ key: “hours”, label: “Hours”, ph: “Mon–Sun · 11am–10pm” },
+]},
+{ group: “Menu”, fields: [
+{ key: “m1”, label: “Item 1 Name”, ph: “Signature Dish” },
+{ key: “m1d”, label: “Item 1 Desc”, ph: “Chef’s special recipe” },
+{ key: “m1p”, label: “Item 1 Price”, ph: “$18” },
+{ key: “m2”, label: “Item 2 Name”, ph: “House Favourite” },
+{ key: “m2d”, label: “Item 2 Desc”, ph: “A crowd pleaser” },
+{ key: “m2p”, label: “Item 2 Price”, ph: “$14” },
+{ key: “m3”, label: “Item 3 Name”, ph: “Daily Special” },
+{ key: “m3d”, label: “Item 3 Desc”, ph: “Changes every day” },
+{ key: “m3p”, label: “Item 3 Price”, ph: “$16” },
+]},
+{ group: “Contact”, fields: [
+{ key: “location”, label: “Address”, ph: “123 Main St, City” },
+{ key: “phone”, label: “Phone”, ph: “+1 234 567 8900” },
+]},
+],
+comingsoon: [
+{ group: “Identity”, fields: [
+{ key: “title”, label: “Product Name”, ph: “Something Amazing” },
+{ key: “avatar”, label: “Logo Emoji”, ph: “🚀” },
+{ key: “subtitle”, label: “Teaser Text”, ph: “We’re working on something special…”, multiline: true },
+]},
+{ group: “Launch”, fields: [
+{ key: “launchDate”, label: “Launch Date”, ph: “2025-12-31”, type: “date” },
+]},
+],
+blog: [
+{ group: “Article”, fields: [
+{ key: “title”, label: “Article Title”, ph: “My Story” },
+{ key: “subtitle”, label: “Intro Quote / Lead”, ph: “A compelling opening…”, multiline: true },
+{ key: “author”, label: “Author Name”, ph: “Jane Doe” },
+{ key: “avatar”, label: “Author Emoji”, ph: “✍️” },
+{ key: “bio”, label: “Author Bio”, ph: “Writer sharing ideas…” },
+{ key: “date”, label: “Date”, ph: “January 1, 2025” },
+{ key: “readtime”, label: “Read Time”, ph: “5 min read” },
+{ key: “category”, label: “Category”, ph: “Blog” },
+{ key: “blogName”, label: “Blog Name”, ph: “My Blog” },
+]},
+{ group: “Content”, fields: [
+{ key: “p1”, label: “Paragraph 1”, ph: “Your opening paragraph…”, multiline: true },
+{ key: “h2”, label: “Section Heading”, ph: “The Main Point” },
+{ key: “p2”, label: “Paragraph 2”, ph: “Your second paragraph…”, multiline: true },
+{ key: “p3”, label: “Paragraph 3”, ph: “Your closing paragraph…”, multiline: true },
+]},
+{ group: “Tags”, fields: [
+{ key: “t1”, label: “Tag 1”, ph: “Writing” },
+{ key: “t2”, label: “Tag 2”, ph: “Ideas” },
+{ key: “t3”, label: “Tag 3”, ph: “Lifestyle” },
+]},
+],
+};
+
+const DEFAULT_DATA = {
+title: “”,
+subtitle: “”,
+primary: “#f97316”,
+bg: “#0f0f0f”,
+text: “#f5f5f5”,
+};
+
+const COLOR_PRESETS = [
+{ name: “Forge”, primary: “#f97316”, bg: “#0f0f0f”, text: “#f5f5f5” },
+{ name: “Ocean”, primary: “#0ea5e9”, bg: “#0a0f1e”, text: “#e8f4fd” },
+{ name: “Forest”, primary: “#10b981”, bg: “#0a1612”, text: “#ecfdf5” },
+{ name: “Royal”, primary: “#8b5cf6”, bg: “#0d0b1e”, text: “#f3f0ff” },
+{ name: “Rose”, primary: “#f43f5e”, bg: “#1a0a0d”, text: “#fff1f2” },
+{ name: “Gold”, primary: “#f59e0b”, bg: “#111008”, text: “#fffbeb” },
+{ name: “Light”, primary: “#2563eb”, bg: “#ffffff”, text: “#111827” },
+{ name: “Cream”, primary: “#dc2626”, bg: “#faf7f2”, text: “#1c1917” },
+];
+
+const TAB_ICONS = {
+templates: “⬡”,
+design: “✦”,
+code: “⟨⟩”,
+preview: “▷”,
+};
+
+export default function PocketForge() {
+const [screen, setScreen] = useState(“home”);
+const [activeTab, setActiveTab] = useState(“design”);
+const [selectedTemplate, setSelectedTemplate] = useState(null);
+const [data, setData] = useState({ …DEFAULT_DATA });
+const [customCode, setCustomCode] = useState(””);
+const [useCustomCode, setUseCustomCode] = useState(false);
+const [copied, setCopied] = useState(false);
+const [savedSites, setSavedSites] = useState([]);
+const [toast, setToast] = useState(null);
+const [codeExpanded, setCodeExpanded] = useState(false);
+
+const showToast = (msg, type = “success”) => {
+setToast({ msg, type });
+setTimeout(() => setToast(null), 2500);
+};
+
+const getHTML = useCallback(() => {
+if (useCustomCode && customCode) return customCode;
+if (!selectedTemplate) return “”;
+return selectedTemplate.generate(data);
+}, [useCustomCode, customCode, selectedTemplate, data]);
+
+const updateField = (key, val) => {
+setData(prev => ({ …prev, [key]: val }));
+setUseCustomCode(false);
+};
+
+const syncCodeFromVisual = () => {
+if (selectedTemplate) {
+setCustomCode(selectedTemplate.generate(data));
+}
+};
+
+const handleSelectTemplate = (tpl) => {
+setSelectedTemplate(tpl);
+setData({ …DEFAULT_DATA, primary: tpl.accent });
+setCustomCode(””);
+setUseCustomCode(false);
+setScreen(“editor”);
+setActiveTab(“design”);
+};
+
+const handleCopy = () => {
+const html = getHTML();
+if (!html) return;
+navigator.clipboard.writeText(html).then(() => {
+setCopied(true);
+showToast(“HTML copied to clipboard!”);
+setTimeout(() => setCopied(false), 2000);
+});
+};
+
+const handleSave = () => {
+if (!selectedTemplate) return;
+const site = {
+id: Date.now(),
+name: data.title || selectedTemplate.name,
+template: selectedTemplate.id,
+icon: selectedTemplate.icon,
+data: { …data },
+html: getHTML(),
+savedAt: new Date().toLocaleTimeString(),
+};
+setSavedSites(prev => [site, …prev].slice(0, 10));
+showToast(“Site saved!”);
+};
+
+const handleLoadSaved = (site) => {
+const tpl = TEMPLATES.find(t => t.id === site.template);
+if (tpl) {
+setSelectedTemplate(tpl);
+setData(site.data);
+setCustomCode(site.html);
+setUseCustomCode(false);
+setScreen(“editor”);
+setActiveTab(“design”);
+}
+};
+
+const html = getHTML();
+
+// ── SCREENS ──────────────────────────────────────────
+if (screen === “home”) {
+return (
+<div style={styles.shell}>
+<div style={styles.statusBar}>
+<span style={{ fontSize: 13, opacity: 0.5 }}>PocketForge</span>
+<span style={{ fontSize: 13, opacity: 0.5 }}>⚙</span>
+</div>
+
+```
+    {/* Header */}
+    <div style={{ padding: "20px 20px 0", textAlign: "center" }}>
+      <div style={{ fontSize: 40, marginBottom: 6 }}>⚒</div>
+      <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "Georgia, serif", color: C.orange, letterSpacing: -0.5 }}>PocketForge</div>
+      <div style={{ fontSize: 13, opacity: 0.45, marginTop: 4, fontFamily: "monospace" }}>build websites · anywhere</div>
+    </div>
+
+    {/* New Site */}
+    <div style={{ padding: "20px 16px 0" }}>
+      <div style={styles.sectionLabel}>START A NEW SITE</div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        {TEMPLATES.map(tpl => (
+          <button key={tpl.id} onClick={() => handleSelectTemplate(tpl)} style={{ ...styles.templateCard, borderColor: tpl.accent + "44" }}>
+            <div style={{ fontSize: 26, marginBottom: 6 }}>{tpl.icon}</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: tpl.accent }}>{tpl.name}</div>
+            <div style={{ fontSize: 11, opacity: 0.45, marginTop: 2 }}>{tpl.desc}</div>
+          </button>
+        ))}
+      </div>
+    </div>
+
+    {/* Saved */}
+    {savedSites.length > 0 && (
+      <div style={{ padding: "20px 16px 0" }}>
+        <div style={styles.sectionLabel}>YOUR SITES</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {savedSites.map(s => (
+            <button key={s.id} onClick={() => handleLoadSaved(s)} style={styles.savedCard}>
+              <span style={{ fontSize: 22 }}>{s.icon}</span>
+              <div style={{ flex: 1, textAlign: "left" }}>
+                <div style={{ fontSize: 14, fontWeight: 700 }}>{s.name || "Untitled"}</div>
+                <div style={{ fontSize: 11, opacity: 0.4 }}>Saved {s.savedAt}</div>
+              </div>
+              <span style={{ fontSize: 12, opacity: 0.35 }}>›</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    )}
+    <div style={{ height: 32 }} />
+    {toast && <Toast {...toast} />}
+  </div>
+);
+```
+
+}
+
+if (screen === “preview”) {
+return (
+<div style={{ …styles.shell, background: “#000” }}>
+<div style={{ display: “flex”, alignItems: “center”, justifyContent: “space-between”, padding: “12px 16px”, borderBottom: “1px solid #222” }}>
+<button onClick={() => setScreen(“editor”)} style={styles.backBtn}>‹ Back</button>
+<div style={{ fontSize: 13, fontWeight: 700, color: C.orange }}>Preview</div>
+<button onClick={handleCopy} style={{ …styles.iconBtn, background: copied ? C.orange : “#1a1a1a”, color: copied ? “#000” : “#fff” }}>
+{copied ? “✓” : “Copy”}
+</button>
+</div>
+<iframe
+srcDoc={html}
+style={{ width: “100%”, flex: 1, border: “none” }}
+title=“preview”
+sandbox=“allow-scripts”
+/>
+{toast && <Toast {…toast} />}
+</div>
+);
+}
+
+// EDITOR
+const fields = FIELD_GROUPS[selectedTemplate?.id] || [];
+
+return (
+<div style={styles.shell}>
+{/* Top bar */}
+<div style={{ display: “flex”, alignItems: “center”, justifyContent: “space-between”, padding: “10px 14px”, borderBottom: “1px solid #1a1a1a” }}>
+<button onClick={() => setScreen(“home”)} style={styles.backBtn}>‹ Home</button>
+<div style={{ display: “flex”, alignItems: “center”, gap: 6 }}>
+<span style={{ fontSize: 16 }}>{selectedTemplate?.icon}</span>
+<span style={{ fontSize: 13, fontWeight: 700, color: C.orange }}>{selectedTemplate?.name}</span>
+</div>
+<div style={{ display: “flex”, gap: 6 }}>
+<button onClick={handleSave} style={styles.iconBtn}>💾</button>
+<button onClick={() => setScreen(“preview”)} style={{ …styles.iconBtn, background: C.orange, color: “#000” }}>▷</button>
+</div>
+</div>
+
+```
+  {/* Tab bar */}
+  <div style={styles.tabBar}>
+    {["design", "colors", "code"].map(tab => (
+      <button key={tab} onClick={() => setActiveTab(tab)} style={{ ...styles.tab, ...(activeTab === tab ? styles.tabActive : {}) }}>
+        <span style={{ fontSize: 11 }}>{TAB_ICONS[tab] || tab}</span>
+        <span style={{ fontSize: 10, marginTop: 2, textTransform: "capitalize" }}>{tab}</span>
+      </button>
+    ))}
+  </div>
+
+  {/* Content */}
+  <div style={styles.scrollArea}>
+
+    {/* DESIGN TAB */}
+    {activeTab === "design" && (
+      <div style={{ padding: "16px 14px" }}>
+        {fields.map(group => (
+          <div key={group.group} style={{ marginBottom: 20 }}>
+            <div style={styles.groupLabel}>{group.group}</div>
+            {group.fields.map(f => (
+              <div key={f.key} style={styles.fieldWrap}>
+                <label style={styles.fieldLabel}>{f.label}</label>
+                {f.multiline ? (
+                  <textarea
+                    value={data[f.key] || ""}
+                    onChange={e => updateField(f.key, e.target.value)}
+                    placeholder={f.ph}
+                    rows={3}
+                    style={styles.textarea}
+                  />
+                ) : f.type === "date" ? (
+                  <input
+                    type="date"
+                    value={data[f.key] || ""}
+                    onChange={e => updateField(f.key, e.target.value)}
+                    style={styles.input}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={data[f.key] || ""}
+                    onChange={e => updateField(f.key, e.target.value)}
+                    placeholder={f.ph}
+                    style={styles.input}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    )}
+
+    {/* COLORS TAB */}
+    {activeTab === "colors" && (
+      <div style={{ padding: "16px 14px" }}>
+        <div style={styles.groupLabel}>COLOUR PRESETS</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8, marginBottom: 24 }}>
+          {COLOR_PRESETS.map(p => (
+            <button key={p.name} onClick={() => { setData(d => ({ ...d, primary: p.primary, bg: p.bg, text: p.text })); setUseCustomCode(false); }}
+              style={{ ...styles.colorChip, background: p.bg, border: `2px solid ${data.primary === p.primary ? p.primary : p.primary + "44"}` }}>
+              <div style={{ width: 22, height: 22, borderRadius: "50%", background: p.primary, margin: "0 auto 4px" }} />
+              <div style={{ fontSize: 9, color: p.text, opacity: 0.7 }}>{p.name}</div>
+            </button>
+          ))}
+        </div>
+
+        <div style={styles.groupLabel}>CUSTOM COLOURS</div>
+        {[
+          { key: "primary", label: "Accent / Primary" },
+          { key: "bg", label: "Background" },
+          { key: "text", label: "Text Colour" },
+        ].map(c => (
+          <div key={c.key} style={{ ...styles.fieldWrap, flexDirection: "row", alignItems: "center", gap: 12 }}>
+            <input type="color" value={data[c.key] || "#000000"} onChange={e => updateField(c.key, e.target.value)}
+              style={{ width: 44, height: 44, borderRadius: 10, border: "none", cursor: "pointer", background: "none" }} />
+            <div>
+              <div style={styles.fieldLabel}>{c.label}</div>
+              <div style={{ fontSize: 12, color: C.orange, fontFamily: "monospace" }}>{data[c.key]}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+
+    {/* CODE TAB */}
+    {activeTab === "code" && (
+      <div style={{ padding: "16px 14px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <div style={styles.groupLabel}>HTML / CSS</div>
+          <button onClick={() => { syncCodeFromVisual(); setUseCustomCode(true); showToast("Code synced from design"); }}
+            style={{ fontSize: 11, color: C.orange, background: "none", border: `1px solid ${C.orange}44`, borderRadius: 6, padding: "4px 10px", cursor: "pointer" }}>
+            Sync from Design
+          </button>
+        </div>
+        {useCustomCode && (
+          <div style={{ background: "#f97316" + "22", border: "1px solid " + C.orange + "44", borderRadius: 8, padding: "8px 12px", marginBottom: 10, fontSize: 11, color: C.orange }}>
+            ✏️ Editing custom code — design tab changes won't apply
+          </div>
+        )}
+        <textarea
+          value={useCustomCode ? customCode : (selectedTemplate ? selectedTemplate.generate(data) : "")}
+          onChange={e => { setCustomCode(e.target.value); setUseCustomCode(true); }}
+          spellCheck={false}
+          style={{ ...styles.codeEditor, height: codeExpanded ? 420 : 280 }}
+          placeholder="Your HTML will appear here..."
+        />
+        <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+          <button onClick={() => setCodeExpanded(e => !e)} style={styles.secondaryBtn}>
+            {codeExpanded ? "Collapse" : "Expand"}
+          </button>
+          <button onClick={handleCopy} style={{ ...styles.secondaryBtn, flex: 1, background: copied ? C.orange + "22" : undefined, color: copied ? C.orange : undefined }}>
+            {copied ? "✓ Copied!" : "📋 Copy HTML"}
+          </button>
+        </div>
+        <div style={{ marginTop: 16, fontSize: 11, opacity: 0.35, lineHeight: 1.6 }}>
+          Tip: Copy this HTML and paste into any web host (Netlify Drop, GitHub Pages, Tiiny.host) to publish your site instantly.
+        </div>
+      </div>
+    )}
+    <div style={{ height: 24 }} />
+  </div>
+
+  {toast && <Toast {...toast} />}
+</div>
+```
+
+);
+}
+
+function Toast({ msg, type }) {
+return (
+<div style={{
+position: “fixed”, bottom: 24, left: “50%”, transform: “translateX(-50%)”,
+background: type === “success” ? C.orange : “#ef4444”,
+color: “#000”, borderRadius: 20, padding: “10px 20px”,
+fontSize: 13, fontWeight: 700, boxShadow: “0 4px 20px #0008”,
+zIndex: 9999, whiteSpace: “nowrap”, pointerEvents: “none”,
+animation: “fadeIn 0.2s ease”
+}}>
+{msg}
+</div>
+);
+}
+
+const C = { orange: “#f97316”, bg: “#080808”, surface: “#111”, border: “#1e1e1e” };
+
+const styles = {
+shell: {
+maxWidth: 430,
+margin: “0 auto”,
+height: “100vh”,
+display: “flex”,
+flexDirection: “column”,
+background: C.bg,
+color: “#f0f0f0”,
+fontFamily: “‘Segoe UI’, system-ui, sans-serif”,
+overflow: “hidden”,
+position: “relative”,
+},
+statusBar: {
+padding: “10px 18px 6px”,
+display: “flex”,
+justifyContent: “space-between”,
+background: “#000”,
+flexShrink: 0,
+},
+sectionLabel: {
+fontSize: 10,
+fontWeight: 700,
+letterSpacing: 1.5,
+color: C.orange,
+opacity: 0.7,
+marginBottom: 10,
+fontFamily: “monospace”,
+},
+templateCard: {
+background: C.surface,
+border: “1px solid #1e1e1e”,
+borderRadius: 14,
+padding: “16px 12px”,
+cursor: “pointer”,
+textAlign: “center”,
+color: “#f0f0f0”,
+transition: “transform 0.1s”,
+active: { transform: “scale(0.97)” },
+},
+savedCard: {
+background: C.surface,
+border: `1px solid ${C.border}`,
+borderRadius: 12,
+padding: “12px 14px”,
+display: “flex”,
+alignItems: “center”,
+gap: 12,
+cursor: “pointer”,
+color: “#f0f0f0”,
+textAlign: “left”,
+width: “100%”,
+},
+backBtn: {
+background: “none”,
+border: “none”,
+color: C.orange,
+fontSize: 16,
+cursor: “pointer”,
+padding: “4px 6px”,
+fontWeight: 600,
+},
+iconBtn: {
+background: “#1a1a1a”,
+border: `1px solid ${C.border}`,
+color: “#f0f0f0”,
+borderRadius: 8,
+padding: “6px 12px”,
+fontSize: 13,
+cursor: “pointer”,
+fontWeight: 600,
+},
+tabBar: {
+display: “flex”,
+background: “#000”,
+borderBottom: `1px solid ${C.border}`,
+flexShrink: 0,
+},
+tab: {
+flex: 1,
+background: “none”,
+border: “none”,
+color: “#555”,
+padding: “10px 4px”,
+cursor: “pointer”,
+display: “flex”,
+flexDirection: “column”,
+alignItems: “center”,
+gap: 2,
+fontSize: 18,
+transition: “color 0.15s”,
+},
+tabActive: {
+color: C.orange,
+borderBottom: `2px solid ${C.orange}`,
+},
+scrollArea: {
+flex: 1,
+overflowY: “auto”,
+WebkitOverflowScrolling: “touch”,
+},
+groupLabel: {
+fontSize: 10,
+fontWeight: 700,
+letterSpacing: 1.5,
+color: C.orange,
+opacity: 0.65,
+marginBottom: 10,
+fontFamily: “monospace”,
+},
+fieldWrap: {
+marginBottom: 12,
+display: “flex”,
+flexDirection: “column”,
+},
+fieldLabel: {
+fontSize: 11,
+opacity: 0.45,
+marginBottom: 5,
+fontWeight: 600,
+letterSpacing: 0.3,
+},
+input: {
+background: C.surface,
+border: `1px solid ${C.border}`,
+borderRadius: 10,
+padding: “11px 13px”,
+color: “#f0f0f0”,
+fontSize: 14,
+outline: “none”,
+WebkitAppearance: “none”,
+},
+textarea: {
+background: C.surface,
+border: `1px solid ${C.border}`,
+borderRadius: 10,
+padding: “11px 13px”,
+color: “#f0f0f0”,
+fontSize: 14,
+resize: “vertical”,
+outline: “none”,
+fontFamily: “inherit”,
+},
+codeEditor: {
+width: “100%”,
+background: “#000”,
+border: `1px solid ${C.border}`,
+borderRadius: 12,
+padding: “14px”,
+color: “#7dd3a8”,
+fontSize: 12,
+fontFamily: “monospace”,
+resize: “none”,
+outline: “none”,
+lineHeight: 1.6,
+},
+colorChip: {
+borderRadius: 10,
+padding: “8px 4px”,
+cursor: “pointer”,
+textAlign: “center”,
+},
+secondaryBtn: {
+background: C.surface,
+border: `1px solid ${C.border}`,
+borderRadius: 10,
+padding: “10px 14px”,
+color: “#f0f0f0”,
+fontSize: 13,
+cursor: “pointer”,
+fontWeight: 600,
+},
+};
